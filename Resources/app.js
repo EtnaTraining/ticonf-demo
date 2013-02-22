@@ -1,10 +1,12 @@
-// this sets the background color of the master UIView (when there are no windows/tab groups on it)
+
 Titanium.UI.setBackgroundColor('#000');
 
+var questionID = 1;
 
 //var hostname = '192.168.1.106:8080';
-var hostname = 'ead9bf0b0db339287591e2dafc86c4ebc6676099.cloudapp-preview2.appcelerator.com:80';
-//var uri = 'ws://ead9bf0b0db339287591e2dafc86c4ebc6676099.cloudapp-preview2.appcelerator.com:80';
+var hostname = 'localhost:8080';
+//var hostname = 'ead9bf0b0db339287591e2dafc86c4ebc6676099.cloudapp-preview2.appcelerator.com:80';
+
 var uri = 'ws://' + hostname;
 
 
@@ -44,35 +46,30 @@ var question = Ti.UI.createLabel({
 	width: "90%",
 	height: 40,
 	color: "white"
-	//borderWidth: 1,
-	//borderColor: "black"
 });
 win.add(question);
 
 var answerViews = [];
 
 function vote(e) {
-	//Ti.API.info(e.source.choice);
-	socket.emit('vote', {question: 0, answer: e.source.choice});
-	//Ti.API.info(JSON.stringify(answerViews[e.source.choice].children[0]));
+	socket.emit('vote', {question: questionID, answer: e.source.choice});
 	answerViews[e.source.choice].children[0].width++;
 	answerViews[e.source.choice].children[1].text++;
 	
 } 
 
 loadPolls(function(polls) {
-	//Ti.API.info(JSON.stringify(polls));
-	question.text = polls[0].question;
-	for (var i = 0; i < polls[0].answers.length; i++) {
-		Ti.API.info(polls[0].answers[i]);
+	Ti.API.info(JSON.stringify(polls));
+	question.text = polls[questionID].question;
+	for (var i = 0; i < polls[questionID].answers.length; i++) {
+		//Ti.API.info(polls[questionID].answers[i]);
+		Ti.API.info(polls[questionID].values[i]);
 		win.add(Ti.UI.createLabel({
 			top: 0,
 			width: "90%",
 			height: 30,
 			color: "white",
-			//borderWidth: 1,
-			//borderColor: "black",
-			text: polls[0].answers[i]
+			text: polls[questionID].answers[i]
 		}));
 		var chartView = Ti.UI.createView({
 			top: 0,
@@ -84,19 +81,15 @@ loadPolls(function(polls) {
 			top: 0,
 			width: "90%",
 			height: 30,
-			//borderWidth: 1,
-			//borderColor: "black",
 			color: "white",
-			//backgroundImage:"track-complete.png",
-			//backgroundColor: "black",
 			textAlign: "center",
-			text: polls[0].values[i]
+			text: polls[questionID].values[i]
 		});
 		var progressImageView = Ti.UI.createImageView({
 			top:1,
 			height:28,
 			left:1,
-			width: polls[0].values[i],
+			width: polls[questionID].values[i],
 			borderRadius:3,
 			backgroundImage: "color" + i + ".png"
 		});
@@ -110,21 +103,18 @@ loadPolls(function(polls) {
 		top: 10,
 		height: 100,
 		width: "95%",
-		layout: "horizontal",
-		//borderWidth: 1
+		layout: "horizontal"
 	});
 	
 	
 	for (var i = 0; i < polls[0].answers.length; i++) {
-		Ti.API.info(polls[0].answers[i]);
+		//Ti.API.info(polls[questionID].answers[i]);
 		var btn = Ti.UI.createButton({
 			top: 5,
 			left: 10,
 			width: "30%",
 			height: 40,
-			//borderWidth: 1,
-			//borderColor: "black",
-			title: polls[0].answers[i],
+			title: polls[questionID].answers[i],
 			choice: i
 		});
 		btnBar.add(btn);
@@ -139,8 +129,6 @@ socket.on('results', function(data) {
 		answerViews[data.answer].children[0].width = data.votes;
 		answerViews[data.answer].children[1].text = data.votes;
 });
-
-
 
 win.open();
 
